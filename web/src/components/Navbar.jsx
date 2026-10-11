@@ -10,7 +10,7 @@ export default function Navbar() {
   return (
     <header className="navbar">
       <Link to="/" className="logo">
-        🛒 TMĐT
+        Tech Zone
       </Link>
       <nav>
         <Link to="/">Sản phẩm</Link>

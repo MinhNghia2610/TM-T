@@ -247,6 +247,73 @@ button.link {
   text-align: right;
 }
 
+/* ---- Trang thanh toán ---- */
+.payment-page h1 {
+  margin-bottom: 20px;
+}
+
+.payment-methods {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.payment-option {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.payment-option:hover {
+  border-color: #93c5fd;
+}
+
+.payment-option.selected {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.payment-option input {
+  margin-top: 4px;
+}
+
+.payment-option .grow {
+  flex: 1;
+}
+
+.payment-option p {
+  margin: 4px 0 0;
+  color: #555;
+  font-size: 14px;
+}
+
+.payment-option .bank-info {
+  color: #1c1e21;
+  background: #f0f9ff;
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 13px;
+}
+
+.payment-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.pm-method {
+  color: #555;
+  font-size: 14px;
+  margin: 4px 0 0;
+}
+
 /* ---- Đăng nhập ---- */
 .auth-page {
   max-width: 360px;

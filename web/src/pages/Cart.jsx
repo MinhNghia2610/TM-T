@@ -9,20 +9,31 @@ export default function Cart() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState("");
+  const [placing, setPlacing] = useState(false);
 
-  async function placeOrder() {
+  async function placeOrder(goToPayment) {
     setError("");
+    setPlacing(true);
     try {
-      await api("/orders", {
+      const data = await api("/orders", {
         method: "POST",
         body: {
           items: items.map((i) => ({ productId: i.productId, qty: i.qty })),
         },
       });
+
       clear();
-      navigate("/orders");
+
+      // Đưa người dùng tới trang thanh toán chuyên biệt (chọn COD/CASH/CHUYỂN KHOẢN/THẺ...)
+      if (goToPayment) {
+        navigate(`/payment/${data.order._id}`);
+      } else {
+        navigate("/orders");
+      }
     } catch (err) {
       setError(err.message);
+    } finally {
+      setPlacing(false);
     }
   }
 
@@ -61,9 +72,14 @@ export default function Cart() {
       <div className="cart-total">
         <h2>Tổng cộng: {formatVND(total)}</h2>
         {user ? (
-          <button className="primary" onClick={placeOrder}>
-            Đặt hàng
-          </button>
+          <>
+            <button className="primary" disabled={placing} onClick={() => placeOrder(false)}>
+              {placing ? "Đang xử lý..." : "Đặt hàng (làm sau)"}
+            </button>
+            <button className="primary" disabled={placing} onClick={() => placeOrder(true)}>
+              {placing ? "Đang xử lý..." : "Đặt hàng & chọn thanh toán"}
+            </button>
+          </>
         ) : (
           <button className="primary" onClick={() => navigate("/login")}>
             Đăng nhập để đặt hàng

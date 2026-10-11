@@ -1,19 +1,27 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { api, formatVND } from "../api.js";
 import { useAuth } from "../auth.jsx";
 
 export default function Orders() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [orders, setOrders] = useState(null);
 
+  const loadOrders = () => {
+    api("/orders")
+      .then((data) => setOrders(data.orders))
+      .catch(() => setOrders([]));
+  };
+
   useEffect(() => {
-    if (user) {
-      api("/orders")
-        .then((data) => setOrders(data.orders))
-        .catch(() => setOrders([]));
-    }
+    if (user) loadOrders();
   }, [user]);
+
+  function payOrder(id) {
+    // Mở trang thanh toán chuyên biệt để chọn phương thức (COD/CASH/CHUYỂN KHOẢN/THẺ...)
+    navigate(`/payment/${id}`);
+  }
 
   if (!user) {
     return (
@@ -22,6 +30,7 @@ export default function Orders() {
       </p>
     );
   }
+
   if (!orders) return <p>Đang tải...</p>;
   if (orders.length === 0) return <p>Chưa có đơn hàng nào.</p>;
 
@@ -44,6 +53,14 @@ export default function Orders() {
             ))}
           </ul>
           <p className="total">Tổng: {formatVND(o.total)}</p>
+          {o.paymentMethod && (
+            <p className="pm-method">Phương thức: {o.paymentMethod}</p>
+          )}
+          {!o.paid && (
+            <button className="primary" onClick={() => payOrder(o._id)}>
+              Thanh toán
+            </button>
+          )}
         </div>
       ))}
     </div>

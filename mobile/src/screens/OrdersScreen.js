@@ -1,19 +1,35 @@
 import { useEffect, useState } from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { api, formatVND } from "../api";
 import { useStore } from "../store";
 
-export default function OrdersScreen() {
+export default function OrdersScreen({ onPayOrder }) {
   const { user, token } = useStore();
   const [orders, setOrders] = useState(null);
 
+  const loadOrders = () => {
+    api("/orders")
+      .then((data) => setOrders(data.orders))
+      .catch(() => setOrders([]));
+  };
+
   useEffect(() => {
-    if (token) {
-      api("/orders")
-        .then((data) => setOrders(data.orders))
-        .catch(() => setOrders([]));
-    }
+    if (token) loadOrders();
   }, [token]);
+
+  function payOrder(id) {
+    // Mở màn hình thanh toán chuyên biệt để chọn phương thức (COD/tiền mặt/
+    // chuyển khoản/thẻ...)
+    if (onPayOrder) {
+      onPayOrder(id);
+    }
+  }
 
   if (!user) {
     return (
@@ -49,6 +65,14 @@ export default function OrdersScreen() {
               </Text>
             ))}
             <Text style={styles.total}>Tổng: {formatVND(item.total)}</Text>
+            {item.paymentMethod ? (
+              <Text style={styles.pmMethod}>Phương thức: {item.paymentMethod}</Text>
+            ) : null}
+            {!item.paid ? (
+              <TouchableOpacity style={styles.payBtn} onPress={() => payOrder(item._id)}>
+                <Text style={styles.payText}>Thanh toán</Text>
+              </TouchableOpacity>
+            ) : null}
           </View>
         )}
         ListEmptyComponent={<Text style={styles.empty}>Chưa có đơn hàng nào.</Text>}
@@ -96,9 +120,25 @@ const styles = StyleSheet.create({
     textAlign: "right",
     marginTop: 6,
   },
+  pmMethod: {
+    color: "#666",
+    marginTop: 4,
+    fontSize: 13,
+  },
   empty: {
     textAlign: "center",
     marginTop: 40,
     color: "#666",
+  },
+  payBtn: {
+    backgroundColor: "#15803d",
+    borderRadius: 10,
+    paddingVertical: 10,
+    alignItems: "center",
+    marginTop: 8,
+  },
+  payText: {
+    color: "#fff",
+    fontWeight: "700",
   },
 });

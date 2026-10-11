@@ -10,23 +10,35 @@ import {
 import { api, formatVND } from "../api";
 import { useStore } from "../store";
 
-export default function CartScreen({ onGoTab }) {
+export default function CartScreen({ onGoTab, onPayOrder }) {
   const { items, updateQty, remove, clear, total, user } = useStore();
   const [error, setError] = useState("");
+  const [placing, setPlacing] = useState(false);
 
-  async function placeOrder() {
+  async function placeOrder(goToPayment) {
     setError("");
+    setPlacing(true);
     try {
-      await api("/orders", {
+      const data = await api("/orders", {
         method: "POST",
         body: {
           items: items.map((i) => ({ productId: i.productId, qty: i.qty })),
         },
       });
+
       clear();
-      onGoTab("orders");
+
+      // Đưa người dùng tới màn hình thanh toán chuyên biệt (chọn COD/tiền mặt/
+      // chuyển khoản/thẻ...)
+      if (goToPayment && onPayOrder) {
+        onPayOrder(data.order._id);
+      } else {
+        onGoTab("orders");
+      }
     } catch (err) {
       setError(err.message);
+    } finally {
+      setPlacing(false);
     }
   }
 
@@ -81,9 +93,22 @@ export default function CartScreen({ onGoTab }) {
       <View style={styles.totalRow}>
         <Text style={styles.totalText}>Tổng: {formatVND(total)}</Text>
         {user ? (
-          <TouchableOpacity style={styles.primary} onPress={placeOrder}>
-            <Text style={styles.primaryText}>Đặt hàng</Text>
-          </TouchableOpacity>
+          <View style={styles.btnGroup}>
+            <TouchableOpacity
+              style={styles.primary}
+              disabled={placing}
+              onPress={() => placeOrder(false)}
+            >
+              <Text style={styles.primaryText}>{placing ? "Đang xử lý..." : "Đặt hàng (làm sau)"}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.paid}
+              disabled={placing}
+              onPress={() => placeOrder(true)}
+            >
+              <Text style={styles.primaryText}>{placing ? "Đang xử lý..." : "Đặt hàng & chọn thanh toán"}</Text>
+            </TouchableOpacity>
+          </View>
         ) : (
           <TouchableOpacity style={styles.primary} onPress={() => onGoTab("login")}>
             <Text style={styles.primaryText}>Đăng nhập để đặt hàng</Text>
@@ -171,6 +196,16 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 18,
     paddingVertical: 12,
+  },
+  paid: {
+    backgroundColor: "#15803d",
+    borderRadius: 10,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+  },
+  btnGroup: {
+    flexDirection: "row",
+    gap: 8,
   },
   primaryText: {
     color: "#fff",

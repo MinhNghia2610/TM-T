@@ -6,6 +6,7 @@ import ProductsScreen from "./src/screens/ProductsScreen";
 import ProductDetailScreen from "./src/screens/ProductDetailScreen";
 import CartScreen from "./src/screens/CartScreen";
 import OrdersScreen from "./src/screens/OrdersScreen";
+import PaymentScreen from "./src/screens/PaymentScreen";
 import LoginScreen from "./src/screens/LoginScreen";
 
 const TABS = [
@@ -19,17 +20,28 @@ const TABS = [
 export default function App() {
   const [tab, setTab] = useState("products");
   const [productId, setProductId] = useState(null); // nếu có -> đang xem chi tiết sản phẩm
+  const [paymentOrderId, setPaymentOrderId] = useState(null); // nếu có -> đang ở màn thanh toán
 
   let screen;
   if (tab === "products" && productId) {
     screen = <ProductDetailScreen id={productId} onBack={() => setProductId(null)} />;
+  } else if (paymentOrderId) {
+    screen = (
+      <PaymentScreen
+        orderId={paymentOrderId}
+        onDone={() => {
+          setPaymentOrderId(null);
+          setTab("orders");
+        }}
+      />
+    );
   } else {
     switch (tab) {
       case "cart":
-        screen = <CartScreen onGoTab={setTab} />;
+        screen = <CartScreen onGoTab={setTab} onPayOrder={setPaymentOrderId} />;
         break;
       case "orders":
-        screen = <OrdersScreen />;
+        screen = <OrdersScreen onPayOrder={setPaymentOrderId} />;
         break;
       case "login":
         screen = <LoginScreen onGoTab={setTab} />;
@@ -53,6 +65,7 @@ export default function App() {
               onPress={() => {
                 setTab(t.key);
                 setProductId(null);
+                setPaymentOrderId(null);
               }}
             >
               <Text style={[styles.tabLabel, tab === t.key && styles.tabActive]}>
