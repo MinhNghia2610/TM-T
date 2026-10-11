@@ -1,19 +1,21 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { api, formatVND } from "../api.js";
 
 export default function Products() {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
 
-  async function load(q = "") {
-    const data = await api(`/products${q ? `?search=${encodeURIComponent(q)}` : ""}`);
-    setProducts(data.products);
-  }
+  // ?q= trên URL (từ ô tìm kiếm ở navbar) là nguồn sự thật của từ khoá tìm kiếm
+  const [searchParams, setSearchParams] = useSearchParams();
+  const q = searchParams.get("q") ?? "";
 
   useEffect(() => {
-    load();
-  }, []);
+    setSearch(q);
+    api(`/products${q ? `?search=${encodeURIComponent(q)}` : ""}`)
+      .then((data) => setProducts(data.products))
+      .catch(() => setProducts([]));
+  }, [q]);
 
   return (
     <div>
@@ -23,7 +25,7 @@ export default function Products() {
         className="search-form"
         onSubmit={(e) => {
           e.preventDefault();
-          load(search);
+          setSearchParams(search.trim() ? { q: search.trim() } : {});
         }}
       >
         <input
@@ -31,8 +33,15 @@ export default function Products() {
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Tìm sản phẩm..."
         />
+        {q && (
+          <button type="button" className="link" onClick={() => setSearchParams({})}>
+            Xoá tìm kiếm
+          </button>
+        )}
         <button type="submit">Tìm</button>
       </form>
+
+      {q && <p className="search-info">Kết quả cho “{q}”: {products.length} sản phẩm</p>}
 
       <div className="grid">
         {products.map((p) => (

@@ -7,11 +7,12 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  View,
 } from "react-native";
 import { api, formatVND } from "../api";
 import { useStore } from "../store";
 
-export default function ProductDetailScreen({ id, onBack }) {
+export default function ProductDetailScreen({ id, onBack, onBuyNow }) {
   const [product, setProduct] = useState(null);
   const { add } = useStore();
 
@@ -34,15 +35,23 @@ export default function ProductDetailScreen({ id, onBack }) {
       <Text style={styles.price}>{formatVND(product.price)}</Text>
       <Text style={styles.desc}>{product.description}</Text>
 
-      <TouchableOpacity
-        style={styles.primary}
-        onPress={() => {
-          add(product);
-          Alert.alert("Thành công", "Đã thêm vào giỏ hàng");
-        }}
-      >
-        <Text style={styles.primaryText}>Thêm vào giỏ hàng</Text>
-      </TouchableOpacity>
+      <View style={styles.actions}>
+        <TouchableOpacity
+          style={[styles.primary, styles.half]}
+          onPress={onBuyNow}
+        >
+          <Text style={styles.primaryText}>Mua ngay</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.secondary, styles.half]}
+          onPress={() => {
+            add(product);
+            Alert.alert("Thành công", "Đã thêm vào giỏ hàng");
+          }}
+        >
+          <Text style={styles.secondaryText}>Thêm vào giỏ</Text>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 }
@@ -79,6 +88,13 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginBottom: 18,
   },
+  actions: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  half: {
+    flex: 1,
+  },
   primary: {
     backgroundColor: "#2563eb",
     borderRadius: 10,
@@ -87,6 +103,18 @@ const styles = StyleSheet.create({
   },
   primaryText: {
     color: "#fff",
+    fontWeight: "700",
+  },
+  secondary: {
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#2563eb",
+    borderRadius: 10,
+    paddingVertical: 12,
+    alignItems: "center",
+  },
+  secondaryText: {
+    color: "#2563eb",
     fontWeight: "700",
   },
 });

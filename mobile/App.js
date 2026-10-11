@@ -24,7 +24,16 @@ export default function App() {
 
   let screen;
   if (tab === "products" && productId) {
-    screen = <ProductDetailScreen id={productId} onBack={() => setProductId(null)} />;
+    screen = (
+      <ProductDetailScreen
+        id={productId}
+        onBack={() => setProductId(null)}
+        onBuyNow={() => {
+          setProductId(null);
+          setTab("cart");
+        }}
+      />
+    );
   } else if (paymentOrderId) {
     screen = (
       <PaymentScreen
