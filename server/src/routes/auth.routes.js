@@ -40,7 +40,7 @@ module.exports.register = function register(router) {
 
     const user = { _id: result.insertedId, name, email: normalizedEmail };
     sendJson(res, 201, {
-      token: signToken({ userId: String(user._id) }, tokenSecret),
+      token: signToken({ userId: String(user._id), role: publicUser(user).role }, tokenSecret),
       user: publicUser(user),
     });
   });
@@ -61,7 +61,7 @@ module.exports.register = function register(router) {
     }
 
     sendJson(res, 200, {
-      token: signToken({ userId: String(user._id) }, tokenSecret),
+      token: signToken({ userId: String(user._id), role: publicUser(user).role }, tokenSecret),
       user: publicUser(user),
     });
   });

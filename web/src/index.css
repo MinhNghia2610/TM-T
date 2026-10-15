@@ -352,6 +352,271 @@ button.outline:hover {
   margin: 4px 0 0;
 }
 
+/* ---- Module quản trị ---- */
+.admin-shell {
+  display: flex;
+  gap: 20px;
+  align-items: stretch;
+  background: #eef1f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.admin-side {
+  width: 200px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: #1e293b;
+  border-radius: 12px;
+  padding: 14px 10px;
+}
+
+.admin-side-head {
+  padding: 4px 10px 14px;
+  border-bottom: 1px solid #334155;
+  margin-bottom: 10px;
+}
+
+.admin-side-title {
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.admin-side-user {
+  color: #94a3b8;
+  font-size: 12px;
+  margin-top: 4px;
+  word-break: break-all;
+}
+
+.admin-side-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.admin-side-link {
+  display: block;
+  padding: 9px 12px;
+  border-radius: 8px;
+  color: #cbd5e1;
+  font-size: 14px;
+}
+
+.admin-side-link:hover {
+  color: #fff;
+  background: #334155;
+}
+
+.admin-side-link.active {
+  color: #fff;
+  background: #2563eb;
+}
+
+.admin-side-foot {
+  border-top: 1px solid #334155;
+  padding-top: 10px;
+}
+
+.admin-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-content h1 {
+  margin-top: 4px;
+}
+
+.admin-sub {
+  color: #555;
+  font-size: 14px;
+  margin: -6px 0 16px;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.stat-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.stat-label {
+  color: #555;
+  font-size: 13px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+.order-buyer {
+  color: #555;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.order-admin-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.order-admin-foot .total {
+  margin: 0;
+}
+
+.status-picker {
+  color: #555;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-picker select {
+  font: inherit;
+  padding: 6px 10px;
+  border: 1px solid #d0d4dc;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.role-badge {
+  background: #e5e7eb;
+  color: #374151;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+}
+
+.role-badge.role-admin {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.admin-self-note {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.notice {
+  color: #15803d;
+}
+
+.card-form {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.card-form h2 {
+  margin-top: 0;
+  font-size: 18px;
+}
+
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.admin-form input,
+.admin-form textarea {
+  padding: 9px 12px;
+  border: 1px solid #d0d4dc;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.admin-form-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.admin-list-title {
+  margin-bottom: 12px;
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #eef0f3;
+  text-align: left;
+  vertical-align: top;
+}
+
+.admin-table th {
+  font-size: 13px;
+  color: #555;
+}
+
+.admin-table tr.editing td {
+  background: #eff6ff;
+}
+
+.admin-thumb {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.admin-name {
+  font-weight: 600;
+}
+
+.admin-desc {
+  color: #555;
+  font-size: 13px;
+}
+
+.admin-price {
+  white-space: nowrap;
+  font-weight: 700;
+  color: #dc2626;
+}
+
+.admin-actions-col {
+  white-space: nowrap;
+}
+
 /* ---- Đăng nhập ---- */
 .auth-page {
   max-width: 360px;

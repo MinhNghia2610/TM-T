@@ -6,6 +6,7 @@ const { sendJson, readBody } = require("./lib/http");
 const { verifyToken } = require("./lib/auth");
 const config = require("./config");
 
+const adminRoutes = require("./routes/admin.routes");
 const authRoutes = require("./routes/auth.routes");
 const productRoutes = require("./routes/product.routes");
 const orderRoutes = require("./routes/order.routes");
@@ -13,7 +14,9 @@ const orderRoutes = require("./routes/order.routes");
 const router = createRouter();
 authRoutes.register(router);
 productRoutes.register(router);
+productRoutes.registerAdmin(router);
 orderRoutes.register(router);
+adminRoutes.registerAdminRoutes(router);
 
 const server = http.createServer(async (req, res) => {
   // CORS đơn giản: cho phép mọi nguồn gọi (dùng cho web + mobile khi dev)
@@ -48,13 +51,17 @@ const server = http.createServer(async (req, res) => {
     }
 
     // Nếu route yêu cầu đăng nhập -> kiểm tra header Authorization: Bearer <token>
+    // opts.admin = true -> ngoài việc đăng nhập, user phải có role "admin"
     let user = null;
-    if (match.opts.auth) {
+    if (match.opts.auth || match.opts.admin) {
       const header = req.headers.authorization || "";
       const token = header.startsWith("Bearer ") ? header.slice(7) : "";
       const payload = token ? verifyToken(token, config.tokenSecret) : null;
       if (!payload) {
         return sendJson(res, 401, { message: "Bạn cần đăng nhập" });
+      }
+      if (match.opts.admin && payload.role !== "admin") {
+        return sendJson(res, 403, { message: "Chỉ quản trị viên mới có quyền này" });
       }
       user = payload;
     }

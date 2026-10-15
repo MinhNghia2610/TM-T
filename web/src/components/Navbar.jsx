@@ -35,6 +35,7 @@ export default function Navbar() {
         <Link to="/">Sản phẩm</Link>
         <Link to="/cart">Giỏ hàng ({items.length})</Link>
         <Link to="/orders">Đơn của tôi</Link>
+        {user?.role === "admin" && <Link to="/admin">Quản trị</Link>}
         {user ? (
           <>
             <span className="user-name">Xin chào, {user.name}</span>

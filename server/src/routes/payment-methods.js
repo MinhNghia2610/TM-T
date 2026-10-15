@@ -9,7 +9,7 @@ const PAYMENT_METHODS = [
   {
     code: "CASH",
     label: "Tiền mặt",
-    description: "Trả tiền mặt trực tiếp tại cửa hàng.",
+    description: "Trả tiền mặt trực tiếp khi nhận hàng.",
     instant: true,
   },
   {
