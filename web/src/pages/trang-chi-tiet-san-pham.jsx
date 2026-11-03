@@ -1,19 +1,22 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { api, formatVND } from "../api.js";
-import { useCart } from "../cart.jsx";
+import { useCart } from "../gio-hang.jsx";
 
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { add } = useCart();
   const [product, setProduct] = useState(null);
+  const [loadError, setLoadError] = useState(null);
   const [added, setAdded] = useState(false);
 
   useEffect(() => {
+    setLoadError(null);
+    setAdded(false);
     api(`/products/${id}`)
       .then((data) => setProduct(data.product))
-      .catch(() => setProduct(null));
+      .catch((err) => setLoadError(err));
   }, [id]);
 
   // Thêm vào giỏ: giữ nguyên trang, chỉ hiện thông báo thành công
@@ -26,6 +29,19 @@ export default function ProductDetail() {
   function buyNow() {
     add(product);
     navigate("/cart");
+  }
+
+  // Lỗi khi tải (vd 404 do link cũ, sản phẩm đã bị xoá, hoặc lỗi mạng):
+  // báo rõ cho khách thay vì để spinner "Đang tải..." quay mãi mãi.
+  if (loadError) {
+    return (
+      <p>
+        {loadError.status === 404
+          ? "Không tìm thấy sản phẩm này (có thể đã bị xoá hoặc link không đúng)."
+          : `Không tải được sản phẩm: ${loadError.message}`}{" "}
+        <Link to="/">Về trang sản phẩm</Link>
+      </p>
+    );
   }
 
   if (!product) return <p>Đang tải...</p>;

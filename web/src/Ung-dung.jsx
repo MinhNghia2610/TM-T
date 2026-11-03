@@ -1,16 +1,16 @@
 import { Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar.jsx";
-import Products from "./pages/Products.jsx";
-import ProductDetail from "./pages/ProductDetail.jsx";
-import Cart from "./pages/Cart.jsx";
-import Orders from "./pages/Orders.jsx";
-import Payment from "./pages/Payment.jsx";
-import Login from "./pages/Login.jsx";
-import AdminLayout from "./admin/AdminLayout.jsx";
-import AdminDashboard from "./admin/Dashboard.jsx";
-import AdminProducts from "./admin/Products.jsx";
-import AdminOrders from "./admin/Orders.jsx";
-import AdminUsers from "./admin/Users.jsx";
+import Navbar from "./components/thanh-dieu-huong.jsx";
+import Products from "./pages/trang-san-pham.jsx";
+import ProductDetail from "./pages/trang-chi-tiet-san-pham.jsx";
+import Cart from "./pages/trang-gio-hang.jsx";
+import Orders from "./pages/trang-don-hang.jsx";
+import Payment from "./pages/trang-thanh-toan.jsx";
+import Login from "./pages/trang-dang-nhap.jsx";
+import AdminLayout from "./admin/khung-quan-tri.jsx";
+import AdminDashboard from "./admin/trang-tong-quan.jsx";
+import AdminProducts from "./admin/quan-ly-san-pham.jsx";
+import AdminOrders from "./admin/quan-ly-don-hang.jsx";
+import AdminUsers from "./admin/quan-ly-nguoi-dung.jsx";
 
 export default function App() {
   return (

@@ -1,7 +1,7 @@
-const { getDb } = require("../db");
+const { getDb } = require("../co-so-du-lieu");
 const { sendJson } = require("../lib/http");
 const { hashPassword, verifyPassword, signToken } = require("../lib/auth");
-const { tokenSecret } = require("../config");
+const { tokenSecret } = require("../cau-hinh");
 
 const EMAIL_RE = /^\S+@\S+\.\S+$/;
 

@@ -16,7 +16,19 @@ export async function api(path, { method = "GET", body } = {}) {
   });
 
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.message || "Có lỗi xảy ra");
+  if (!res.ok) {
+    // 401 = token hết hạn hoặc phiên không còn hợp lệ: xoá thông tin đã lưu
+    // và đưa khách về trang đăng nhập thay vì để trang hiện "không có gì".
+    // (Trang /login tự mở 401 khi sai mật khẩu -> không chuyển hướng nữa.)
+    if (res.status === 401 && window.location.pathname !== "/login") {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.replace("/login");
+    }
+    const err = new Error(data.message || "Có lỗi xảy ra");
+    err.status = res.status; // để từng trang phân biệt 401 / 404 / 500
+    throw err;
+  }
   return data;
 }
 

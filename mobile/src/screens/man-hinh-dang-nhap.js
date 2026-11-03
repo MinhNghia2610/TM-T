@@ -7,7 +7,7 @@ import {
   View,
 } from "react-native";
 import { api } from "../api";
-import { useStore } from "../store";
+import { useStore } from "../luu-tru";
 
 export default function LoginScreen({ onGoTab }) {
   const { user, login, logout } = useStore();

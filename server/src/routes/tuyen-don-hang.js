@@ -1,7 +1,7 @@
 const { ObjectId } = require("mongodb");
-const { getDb } = require("../db");
+const { getDb } = require("../co-so-du-lieu");
 const { sendJson } = require("../lib/http");
-const { PAYMENT_METHODS, isValidMethod, getMethod } = require("./payment-methods");
+const { PAYMENT_METHODS, isValidMethod, getMethod } = require("./danh-muc-thanh-toan");
 
 module.exports.register = function register(router) {
   // POST /api/orders  { items: [{ productId, qty }] }  (cần đăng nhập)

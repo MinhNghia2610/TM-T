@@ -1,15 +1,14 @@
 const http = require("http");
-const { connect } = require("./db");
-const { getDb } = require("./db");
+const { connect, getDb } = require("./co-so-du-lieu");
 const { createRouter } = require("./lib/router");
 const { sendJson, readBody } = require("./lib/http");
 const { verifyToken } = require("./lib/auth");
-const config = require("./config");
+const config = require("./cau-hinh");
 
-const adminRoutes = require("./routes/admin.routes");
-const authRoutes = require("./routes/auth.routes");
-const productRoutes = require("./routes/product.routes");
-const orderRoutes = require("./routes/order.routes");
+const adminRoutes = require("./routes/tuyen-quan-tri");
+const authRoutes = require("./routes/tuyen-xac-thuc");
+const productRoutes = require("./routes/tuyen-san-pham");
+const orderRoutes = require("./routes/tuyen-don-hang");
 
 const router = createRouter();
 authRoutes.register(router);

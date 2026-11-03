@@ -1,13 +1,20 @@
 const { ObjectId } = require("mongodb");
-const { getDb } = require("../db");
+const { getDb } = require("../co-so-du-lieu");
 const { sendJson } = require("../lib/http");
+
+// Ký tự đặc biệt của regex ( "(", "[", "+"...) phải được escape — nếu truyền
+// thẳng vào $regex, một dấu "(" của khách gõ sẽ làm MongoDB ném lỗi cú pháp
+// và server trả về "Lỗi server" thay vì kết quả tìm kiếm.
+function escapeRegExp(s) {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
 module.exports.register = function register(router) {
   // GET /api/products?search=tên
   router.add("GET", "/api/products", async ({ res, query }) => {
     const search = query.get("search");
     const filter = search
-      ? { name: { $regex: search, $options: "i" } }
+      ? { name: { $regex: escapeRegExp(search), $options: "i" } }
       : {};
 
     const products = await getDb()

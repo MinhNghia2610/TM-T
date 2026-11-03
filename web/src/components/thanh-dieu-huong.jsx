@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../auth.jsx";
-import { useCart } from "../cart.jsx";
+import { useAuth } from "../xac-thuc.jsx";
+import { useCart } from "../gio-hang.jsx";
 
 export default function Navbar() {
   const { user, logout } = useAuth();

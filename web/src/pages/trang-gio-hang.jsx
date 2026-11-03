@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api, formatVND } from "../api.js";
-import { useCart } from "../cart.jsx";
-import { useAuth } from "../auth.jsx";
+import { useCart } from "../gio-hang.jsx";
+import { useAuth } from "../xac-thuc.jsx";
 
 export default function Cart() {
   const { items, updateQty, remove, clear, total } = useCart();

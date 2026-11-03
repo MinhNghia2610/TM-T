@@ -4,8 +4,8 @@
   "private": true,
   "description": "API Node.js thuần (module http) + MongoDB",
   "scripts": {
-    "start": "node --env-file=.env src/server.js",
-    "seed": "node --env-file=.env src/seed.js"
+    "start": "node --env-file=.env src/may-chu.js",
+    "seed": "node --env-file=.env src/du-lieu-mau.js"
   },
   "dependencies": {
     "mongodb": "^6.8.0"

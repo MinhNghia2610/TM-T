@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { api, formatVND } from "../api.js";
-import { useAuth } from "../auth.jsx";
+import { useAuth } from "../xac-thuc.jsx";
 
 // Trang thanh toán chuyên biệt: hiển thị đơn hàng + danh sách phương thức,
 // chọn phương thức rồi xác nhận thanh toán (hoặc chọn COD).

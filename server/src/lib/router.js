@@ -22,11 +22,18 @@ function createRouter() {
       for (const r of routes) {
         const m = r.pattern.exec(pathname);
         if (m && r.method === method) {
-          const params = {};
-          r.keys.forEach((k, i) => {
-            params[k] = decodeURIComponent(m[i + 1]);
-          });
-          return { handler: r.handler, opts: r.opts, params };
+          // decodeURIComponent ném URIError với path sai cú pháp (vd "/api/x/%ZZ").
+          // Phải bắt tại đây — nằm ngoài try/catch của may-chu.js — nếu không
+          // 1 request hỏng sẽ sập cả server.
+          try {
+            const params = {};
+            r.keys.forEach((k, i) => {
+              params[k] = decodeURIComponent(m[i + 1]);
+            });
+            return { handler: r.handler, opts: r.opts, params };
+          } catch {
+            return null; // coi như không tìm thấy -> gửi 404 cho client
+          }
         }
       }
       return null;

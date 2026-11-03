@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { StoreProvider } from "./src/store";
-import ProductsScreen from "./src/screens/ProductsScreen";
-import ProductDetailScreen from "./src/screens/ProductDetailScreen";
-import CartScreen from "./src/screens/CartScreen";
-import OrdersScreen from "./src/screens/OrdersScreen";
-import PaymentScreen from "./src/screens/PaymentScreen";
-import LoginScreen from "./src/screens/LoginScreen";
+import { StoreProvider } from "./src/luu-tru";
+import ProductsScreen from "./src/screens/man-hinh-san-pham";
+import ProductDetailScreen from "./src/screens/man-hinh-chi-tiet-san-pham";
+import CartScreen from "./src/screens/man-hinh-gio-hang";
+import OrdersScreen from "./src/screens/man-hinh-don-hang";
+import PaymentScreen from "./src/screens/man-hinh-thanh-toan";
+import LoginScreen from "./src/screens/man-hinh-dang-nhap";
 
 const TABS = [
   { key: "products", label: "Sản phẩm" },

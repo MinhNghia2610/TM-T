@@ -8,7 +8,7 @@ import {
   View,
 } from "react-native";
 import { api, formatVND } from "../api";
-import { useStore } from "../store";
+import { useStore } from "../luu-tru";
 
 export default function CartScreen({ onGoTab, onPayOrder }) {
   const { items, updateQty, remove, clear, total, user } = useStore();

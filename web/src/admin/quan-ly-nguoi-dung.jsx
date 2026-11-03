@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../api.js";
-import { useAuth } from "../auth.jsx";
+import { useAuth } from "../xac-thuc.jsx";
 
 // Trang quản trị người dùng: xem danh sách, gán/thu hồi quyền admin.
 export default function AdminUsers() {

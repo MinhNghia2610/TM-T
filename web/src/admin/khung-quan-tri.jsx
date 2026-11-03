@@ -1,5 +1,5 @@
 import { NavLink, Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../auth.jsx";
+import { useAuth } from "../xac-thuc.jsx";
 
 // Khung của module quản trị: thanh điều hướng riêng + chặn người không phải admin.
 // Mọi trang con (tổng quan, sản phẩm, đơn hàng, người dùng) nằm dưới route /admin/*.

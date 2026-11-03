@@ -7,7 +7,7 @@ import {
   View,
 } from "react-native";
 import { api, formatVND } from "../api";
-import { useStore } from "../store";
+import { useStore } from "../luu-tru";
 
 export default function OrdersScreen({ onPayOrder }) {
   const { user, token } = useStore();

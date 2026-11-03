@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api.js";
-import { useAuth } from "../auth.jsx";
+import { useAuth } from "../xac-thuc.jsx";
 
 export default function Login() {
   const [mode, setMode] = useState("login"); // "login" hoặc "register"

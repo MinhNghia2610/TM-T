@@ -1,6 +1,6 @@
-// Các API của module quản trị: tất cả đều yêu cầu role "admin" (kiểm tra ở server.js)
+// Các API của module quản trị: tất cả đều yêu cầu role "admin" (kiểm tra ở may-chu.js)
 const { ObjectId } = require("mongodb");
-const { getDb } = require("../db");
+const { getDb } = require("../co-so-du-lieu");
 const { sendJson } = require("../lib/http");
 
 // Trạng thái đơn hàng mà quản trị viên được gán (hiển thị trùng khớp ở web)

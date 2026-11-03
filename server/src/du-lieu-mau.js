@@ -1,8 +1,8 @@
 // Chèn dữ liệu mẫu:  npm run seed
 // 20 sản phẩm gadget (ảnh thật, đã kiểm tra URL trả về 200) + 4 tài khoản demo.
-const { connect, getDb } = require("./db");
+const { connect, getDb } = require("./co-so-du-lieu");
 const { hashPassword } = require("./lib/auth");
-const config = require("./config");
+const config = require("./cau-hinh");
 
 // Unsplash: ảnh chủ đề công nghệ (bỏ ?w= sẽ nhận bản gốc)
 const img = (id) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=600&q=80`;
@@ -47,7 +47,7 @@ const products = [
     name: "Bàn phím cơ không dây",
     price: 990000,
     description: "Switch Red êm ái, kết nối 3 chế độ, keycap PBT chống bám dầu, LED rainbow.",
-    image: "https://upload.wikimedia.org/wikipedia/commons/9/94/Ergonomic_Keyboard_on_Monitor_With_Radius_Tree.jpg",
+    image: "https://gearshop.vn/upload/images/Product/Aula/F75/b%C3%A0n-ph%C3%ADm-aula-F75-Gaming-Ice-Blue-Reaper-Switch-(1).png",
     createdAt: new Date(),
   },
   {

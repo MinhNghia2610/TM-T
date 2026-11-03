@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { setToken } from "./api";
+import { setToken, setUnauthorizedHandler } from "./api";
 
 const StoreContext = createContext(null);
 
@@ -29,6 +29,18 @@ export function StoreProvider({ children }) {
       }
       setReady(true);
     })();
+  }, []);
+
+  // Token hết hạn/không hợp lệ (server trả 401) -> xoá phiên đăng nhập.
+  // Cả app dùng chung một handler này, các màn hình không phải tự bắt riêng.
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      setTokenState("");
+      setToken("");
+      setUser(null);
+      AsyncStorage.multiRemove(["token", "user"]).catch(() => {});
+    });
+    return () => setUnauthorizedHandler(null);
   }, []);
 
   // Lưu giỏ hàng mỗi khi thay đổi

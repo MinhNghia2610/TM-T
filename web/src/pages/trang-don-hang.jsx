@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api, formatVND } from "../api.js";
-import { useAuth } from "../auth.jsx";
+import { useAuth } from "../xac-thuc.jsx";
 
 export default function Orders() {
   const { user } = useAuth();

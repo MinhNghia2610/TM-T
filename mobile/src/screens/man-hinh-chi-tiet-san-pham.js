@@ -10,17 +10,36 @@ import {
   View,
 } from "react-native";
 import { api, formatVND } from "../api";
-import { useStore } from "../store";
+import { useStore } from "../luu-tru";
 
 export default function ProductDetailScreen({ id, onBack, onBuyNow }) {
   const [product, setProduct] = useState(null);
+  const [loadError, setLoadError] = useState(null);
   const { add } = useStore();
 
   useEffect(() => {
+    setLoadError(null);
     api(`/products/${id}`)
       .then((data) => setProduct(data.product))
-      .catch(() => setProduct(null));
+      .catch((err) => setLoadError(err));
   }, [id]);
+
+  // Lỗi khi tải (vd 404 do link cũ, sản phẩm đã bị xoá, hoặc lỗi mạng):
+  // báo rõ cho khách thay vì để ActivityIndicator quay mãi.
+  if (loadError) {
+    return (
+      <View style={styles.wrap}>
+        <TouchableOpacity onPress={onBack}>
+          <Text style={styles.back}>← Quay lại</Text>
+        </TouchableOpacity>
+        <Text style={styles.error}>
+          {loadError.status === 404
+            ? "Không tìm thấy sản phẩm này (có thể đã bị xoá)."
+            : `Không tải được sản phẩm: ${loadError.message}`}
+        </Text>
+      </View>
+    );
+  }
 
   if (!product) return <ActivityIndicator style={{ marginTop: 40 }} />;
 
