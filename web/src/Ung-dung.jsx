@@ -1,5 +1,6 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Link } from "react-router-dom";
 import Navbar from "./components/thanh-dieu-huong.jsx";
+import Footer from "./components/chan-trang.jsx";
 import Products from "./pages/trang-san-pham.jsx";
 import ProductDetail from "./pages/trang-chi-tiet-san-pham.jsx";
 import Cart from "./pages/trang-gio-hang.jsx";
@@ -32,8 +33,22 @@ export default function App() {
             <Route path="orders" element={<AdminOrders />} />
             <Route path="users" element={<AdminUsers />} />
           </Route>
+          {/* Đường dẫn không tồn tại: trả về một trang rõ ràng thay vì khung trống */}
+          <Route
+            path="*"
+            element={
+              <div className="not-found">
+                <h1>Không tìm thấy trang</h1>
+                <p>Đường dẫn bạn mở không tồn tại hoặc đã được thay đổi.</p>
+                <Link className="promo-cta" to="/">
+                  Về trang chủ
+                </Link>
+              </div>
+            }
+          />
         </Routes>
       </main>
+      <Footer />
     </>
   );
 }

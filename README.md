@@ -11,11 +11,13 @@ tmdt/
 
 ## Chức năng
 
-**Khách hàng (web + mobile):** xem sản phẩm, tìm kiếm, chi tiết sản phẩm, giỏ hàng, đặt hàng, thanh toán, xem đơn hàng của mình, đăng ký / đăng nhập.
+**Khách hàng (web + mobile):** xem sản phẩm theo danh mục, tìm kiếm, sắp xếp, chi tiết sản phẩm (kèm sản phẩm cùng danh mục), giỏ hàng, đặt hàng, thanh toán, xem đơn hàng của mình, đăng ký / đăng nhập.
 
-**Quản trị viên (web):** module quản trị riêng — tổng quan số liệu, thêm / sửa / xoá sản phẩm, quản lý đơn hàng (cập nhật trạng thái), quản lý người dùng (cấp / thu hồi quyền admin).
+**Quản trị viên (web):** module quản trị riêng — tổng quan số liệu (doanh thu 7 ngày, doanh thu theo danh mục, đơn gần đây), thêm / sửa / xoá sản phẩm kèm danh mục, quản lý đơn hàng (lọc trạng thái, cập nhật trạng thái), quản lý người dùng (cấp / thu hồi quyền admin).
 
-**Thanh toán:** 4 phương thức (danh mục chung ở `server/src/routes/payment-methods.js`):
+**Danh mục sản phẩm:** 12 nhóm hàng (âm thanh, điện thoại, laptop, máy ảnh, đồng hồ, làm đẹp, thời trang, nhà cửa, gia dụng, thể thao, thiết bị số, gaming) + "Khác". Danh mục khai báo một lần ở `server/src/lib/danh-muc-san-pham.js`, được seed vào sản phẩm, trả về qua `/api/categories` và dùng chung cho web, mobile và module quản trị. Khi đặt hàng, danh mục được **snapshot vào từng dòng đơn** để báo cáo doanh thu vẫn đúng nếu sản phẩm bị xoá/đổi danh mục sau này.
+
+**Thanh toán:** 4 phương thức (danh mục chung ở `server/src/routes/danh-muc-thanh-toan.js`):
 
 | Mã | Phương thức | Ghi chú |
 | -- | ----------- | ------- |
@@ -24,7 +26,7 @@ tmdt/
 | `BANK_TRANSFER` | Chuyển khoản ngân hàng | Mô phỏng, có thông tin tài khoản nhận (VCB) |
 | `CARD` | Thẻ (Visa/Master/NapAS) | Mô phỏng cổng thanh toán |
 
-Gọi `POST /api/orders/:id/pay { method }` để trả tiền cho một đơn (chỉ chủ đơn, không thanh toán lặp — trả `409` nếu đơn đã trả). Khi gắn cổng thật (Stripe/MoMo/VNPay...), thay khối mô phỏng trong `order.routes.js` bằng lời gọi cổng.
+Gọi `POST /api/orders/:id/pay { method }` để trả tiền cho một đơn (chỉ chủ đơn, không thanh toán lặp — trả `409` nếu đơn đã trả). Khi gắn cổng thật (Stripe/MoMo/VNPay...), thay khối mô phỏng trong `server/src/routes/tuyen-don-hang.js` bằng lời gọi cổng.
 
 ## Yêu cầu
 
@@ -37,7 +39,7 @@ Gọi `POST /api/orders/:id/pay { method }` để trả tiền cho một đơn (
 cd server
 cp .env.example .env      # sửa TOKEN_SECRET thành chuỗi ngẫu nhiên của bạn
 npm install
-npm run seed              # xoá + chèn 20 sản phẩm mẫu và 4 tài khoản demo
+npm run seed              # 70 sản phẩm (có danh mục), 54 tài khoản và 60 đơn mẫu (không xoá dữ liệu thật)
 npm start                 # chạy tại http://localhost:3000
 ```
 
@@ -60,7 +62,13 @@ npm install
 npx expo start            # quét mã QR bằng app Expo Go
 ```
 
-Trước khi chạy, sửa `BASE_URL` trong `mobile/src/api.js`:
+Địa chỉ API lấy từ biến môi trường `EXPO_PUBLIC_API_URL` (mặc định `http://10.0.2.2:3000/api`). Chạy:
+
+```bash
+EXPO_PUBLIC_API_URL=http://192.168.1.10:3000/api npx expo start
+```
+
+hoặc sửa giá trị mặc định trong `mobile/src/api.js`:
 
 | Môi trường                  | Giá trị BASE_URL                  |
 | --------------------------- | --------------------------------- |
@@ -76,6 +84,7 @@ Trước khi chạy, sửa `BASE_URL` trong `mobile/src/api.js`:
 | `thanh@tmdt.vn` | `thanh123` | `user` (khách hàng) |
 | `minh@tmdt.vn`  | `minh123`  | `user` (khách hàng) |
 | `lan@tmdt.vn`   | `lan123`   | `user` (khách hàng) |
+| `user01@tmdt.vn` … `user50@tmdt.vn` | `user123` | `user` (50 khách hàng bổ sung) |
 
 Đây là **danh sách quyền gốc chuẩn** của hệ thống: chỉ `admin@tmdt.vn` là admin, các tài khoản còn lại đều là khách hàng. Đổi quyền sau đó bằng trang "Người dùng" của module quản trị.
 
@@ -85,9 +94,9 @@ Web có **module quản trị riêng** tại `http://localhost:5173/admin`, tác
 
 | Trang | Đường dẫn | Chức năng |
 | ----- | --------- | --------- |
-| Tổng quan  | `/admin`         | Số liệu: sản phẩm, người dùng, đơn hàng, doanh thu (đơn đã thanh toán) |
-| Sản phẩm   | `/admin/products`| Thêm / sửa / xoá sản phẩm |
-| Đơn hàng   | `/admin/orders`  | Xem tất cả đơn của mọi người, cập nhật trạng thái (MỚI → ĐANG GIAO HÀNG → HOÀN THÀNH / ĐÃ HUỶ...) |
+| Tổng quan  | `/admin`         | Số liệu, doanh thu 7 ngày, doanh thu theo danh mục, đơn theo trạng thái, top 5 sản phẩm và 6 đơn gần nhất |
+| Sản phẩm   | `/admin/products`| Thêm / sửa / xoá sản phẩm, gán danh mục, tìm kiếm và lọc theo danh mục |
+| Đơn hàng   | `/admin/orders`  | Xem tất cả đơn của mọi người, lọc trạng thái / tìm kiếm; bộ lọc nằm trên URL (`?status=`, `?q=`) để dashboard link thẳng tới |
 | Người dùng | `/admin/users`   | Danh sách tài khoản, cấp / thu hồi quyền admin (không thể tự đổi quyền của mình) |
 
 - Guard nằm ở `web/src/admin/khung-quan-tri.jsx`: người không phải admin sẽ bị đưa về trang chủ; server cũng kiểm tra lại role trong token (mọi route `/api/admin/*` trả `401` nếu chưa đăng nhập, `403` nếu không phải admin — kiểm tra hai lớp).
@@ -100,8 +109,10 @@ Web có **module quản trị riêng** tại `http://localhost:5173/admin`, tác
 | ------ | -------------------- | ------------------------------ | ------------- |
 | POST   | `/api/auth/register` | Đăng ký `{name,email,password}`| Không         |
 | POST   | `/api/auth/login`    | Đăng nhập `{email,password}`   | Không         |
-| GET    | `/api/products`      | Danh sách sản phẩm (`?search=`)| Không         |
-| GET    | `/api/products/:id`  | Chi tiết sản phẩm              | Không         |
+| GET    | `/api/products`      | Danh sách sản phẩm (`?search=`, `?category=`, `?sort=newest / price-asc / price-desc / name`, `?limit=`) | Không |
+| GET    | `/api/products/:id`  | Chi tiết sản phẩm (kèm `categoryLabel`) | Không |
+| GET    | `/api/products/:id/related` | Sản phẩm cùng danh mục (`?limit=`, mặc định 4) | Không |
+| GET    | `/api/categories`    | Danh mục sản phẩm kèm số lượng  | Không         |
 | GET    | `/api/orders/:id`    | Lấy 1 đơn của mình (cho trang thanh toán) | Đăng nhập |
 | POST   | `/api/orders`        | Đặt hàng `{items:[{productId,qty}]}` | Đăng nhập |
 | GET    | `/api/orders`        | Đơn hàng của tôi               | Đăng nhập     |
@@ -112,7 +123,7 @@ Web có **module quản trị riêng** tại `http://localhost:5173/admin`, tác
 | PUT    | `/api/admin/orders/:id/status` | Cập nhật trạng thái đơn | Admin    |
 | GET    | `/api/admin/users`   | Danh sách người dùng           | Admin         |
 | PUT    | `/api/admin/users/:id/role` | Gán / thu hồi quyền admin | Admin      |
-| POST   | `/api/products`      | Thêm sản phẩm (validate giá, URL ảnh) | Admin |
+| POST   | `/api/products`      | Thêm sản phẩm (validate giá, URL ảnh, danh mục) | Admin |
 | PUT    | `/api/products/:id`  | Sửa sản phẩm                   | Admin         |
 | DELETE | `/api/products/:id`  | Xoá sản phẩm                   | Admin         |
 
@@ -128,10 +139,11 @@ server/
     ├── may-chu.js          # entry: http server, CORS, đọc body JSON, guard token (auth/admin), điều hướng route
     ├── cau-hinh.js         # đọc .env (nạp bằng --env-file)
     ├── co-so-du-lieu.js    # kết nối MongoDB
-    ├── du-lieu-mau.js      # seed 20 sản phẩm + 4 tài khoản demo (scrypt đã băm mật khẩu)
+    ├── du-lieu-mau.js      # seed 70 sản phẩm + 54 tài khoản + 60 đơn mẫu (idempotent)
     ├── lib/                          # hàm tiện ích (giữ tên kỹ thuật):
     │   ├── http.js                   # sendJson, readBody
     │   ├── router.js                 # router mini (hỗ trợ :param)
+    │   ├── danh-muc-san-pham.js      # danh mục sản phẩm dùng chung (slug, nhãn, icon)
     │   └── auth.js                   # hash mật khẩu (scrypt + timingSafeEqual) + token HMAC-SHA256 (đính role, hết hạn 7 ngày)
     └── routes/                       # các tuyến API qua tiếng Việt:
         ├── tuyen-xac-thuc.js         # đăng ký / đăng nhập
@@ -146,10 +158,12 @@ web/
     ├── diem-vao.jsx        # entry: BrowserRouter + providers (được index.html nạp)
     ├── Ung-dung.jsx        # định tuyến: trang khách + module quản trị /admin/*
     ├── api.js              # hàm gọi API (tự gắn Bearer token) + formatVND
+    ├── danh-muc.js         # hook useCategories (cache danh mục dùng chung)
     ├── xac-thuc.jsx        # AuthContext (lưu user + token ở localStorage)
     ├── gio-hang.jsx        # CartContext (giỏ hàng ở localStorage)
     ├── components/
-    │   └── thanh-dieu-huong.jsx  # navbar khách hàng (hiện "Quản trị" nếu là admin)
+    │   ├── thanh-dieu-huong.jsx  # navbar khách hàng (hiện "Quản trị" nếu là admin)
+    │   └── chan-trang.jsx        # footer: danh mục, lối tắt, liên hệ
     ├── pages/              # trang khách
     │   ├── trang-san-pham.jsx              trang-chi-tiet-san-pham.jsx
     │   ├── trang-gio-hang.jsx              trang-don-hang.jsx
@@ -165,7 +179,7 @@ web/
 mobile/
 ├── Ung-dung.js             # điều hướng tab bằng state (không dùng navigation library)
 └── src/
-    ├── api.js              # hàm gọi API + BASE_URL (giữ tên kỹ thuật)
+    ├── api.js              # hàm gọi API + BASE_URL (EXPO_PUBLIC_API_URL hoặc mặc định)
     ├── luu-tru.js          # StoreContext (đăng nhập + giỏ hàng, AsyncStorage)
     └── screens/            # man-hinh-san-pham, chi-tiet-san-pham, gio-hang, don-hang, thanh-toan, dang-nhap
 ```

@@ -41,6 +41,9 @@ module.exports.register = function register(router) {
           name: product.name,
           price: product.price,
           qty,
+          // Snapshot danh mục tại thời điểm mua: báo cáo doanh thu theo danh mục
+          // vẫn đúng kể cả khi sản phẩm bị xoá hoặc đổi danh mục sau này.
+          category: product.category || "khac",
         });
       }
 

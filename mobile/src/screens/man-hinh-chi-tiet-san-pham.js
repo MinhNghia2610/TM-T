@@ -50,6 +50,7 @@ export default function ProductDetailScreen({ id, onBack, onBuyNow }) {
       </TouchableOpacity>
 
       <Image source={{ uri: product.image }} style={styles.image} />
+      <Text style={styles.category}>{product.categoryLabel}</Text>
       <Text style={styles.name}>{product.name}</Text>
       <Text style={styles.price}>{formatVND(product.price)}</Text>
       <Text style={styles.desc}>{product.description}</Text>
@@ -90,6 +91,13 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: "#eee",
     marginBottom: 14,
+  },
+  category: {
+    color: "#2563eb",
+    fontWeight: "700",
+    fontSize: 12,
+    textTransform: "uppercase",
+    marginBottom: 4,
   },
   name: {
     fontSize: 20,

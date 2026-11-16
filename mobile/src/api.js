@@ -1,8 +1,10 @@
 // Địa chỉ server Node.
 //  - Máy ảo Android:            http://10.0.2.2:3000/api  (10.0.2.2 = localhost của máy tính)
 //  - Máy ảo iOS / web trong Expo: http://localhost:3000/api
-//  - Điện thoại thật (Expo Go):  http://<IP-máy-tính-cùng-WiFi>:3000/api, ví dụ http://192.168.1.10:3000/api
-const BASE_URL = "http://10.0.2.2:3000/api";
+//  - Điện thoại thật (Expo Go):  http://<IP-máy-tính-cùng-WiFi>:3000/api
+// Có thể ghi đè bằng biến môi trường EXPO_PUBLIC_API_URL khi chạy `npx expo start`
+// (ví dụ EXPO_PUBLIC_API_URL=http://192.168.1.10:3000/api), không cần sửa mã nguồn.
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL || "http://10.0.2.2:3000/api";
 
 // Token lưu ở biến module, được luu-tru.js cập nhật sau khi đăng nhập
 let authToken = "";
@@ -28,6 +30,10 @@ export async function api(path, { method = "GET", body } = {}) {
     },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
+
+  // Phải đọc body trước khi dựng lỗi: trước đây `data` chưa tồn tại nên mọi
+  // phản hồi lỗi đều ném ReferenceError và che mất thông báo thật từ server.
+  const data = await res.json().catch(() => ({}));
 
   if (!res.ok) {
     // 401 = token hết hạn/không hợp lệ -> báo cho store xoá phiên và hiện màn đăng nhập

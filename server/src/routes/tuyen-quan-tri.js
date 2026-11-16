@@ -2,6 +2,7 @@
 const { ObjectId } = require("mongodb");
 const { getDb } = require("../co-so-du-lieu");
 const { sendJson } = require("../lib/http");
+const { categoryLabel } = require("../lib/danh-muc-san-pham");
 
 // Trạng thái đơn hàng mà quản trị viên được gán (hiển thị trùng khớp ở web)
 const ADMIN_ORDER_STATUSES = [
@@ -39,8 +40,173 @@ module.exports.registerAdminRoutes = function registerAdminRoutes(router) {
       const revenue = revenueGroup[0]?.revenue || 0;
       const paidOrders = revenueGroup[0]?.paidOrders || 0;
 
+      const ordersColl = db.collection("orders");
+
+      // Đơn chưa thu được tiền (chưa thanh toán và chưa huỷ) — "công nợ"
+      const [unpaidOrders, unpaidGroup] = await Promise.all([
+        ordersColl.countDocuments({ paid: false, status: { $ne: "ĐÃ HUỶ" } }),
+        ordersColl
+          .aggregate([
+            { $match: { paid: false, status: { $ne: "ĐÃ HUỶ" } } },
+            { $group: { _id: null, value: { $sum: "$total" } } },
+          ])
+          .toArray(),
+      ]);
+      const unpaidValue = unpaidGroup[0]?.value || 0;
+
+      // Số đơn theo từng trạng thái (để vẽ bảng phân bổ ở dashboard)
+      const statusGroup = await ordersColl
+        .aggregate([{ $group: { _id: "$status", count: { $sum: 1 } } }])
+        .toArray();
+      const statusCounts = {};
+      for (const g of statusGroup) {
+        statusCounts[g._id || "(không rõ)"] = g.count;
+      }
+
+      // Doanh thu 7 ngày: gom theo ngày rồi bơm đủ 7 ngày (kể cả ngày 0 đơn).
+      // Nếu 7 ngày qua chưa có đơn đã thanh toán (dữ liệu cũ), khung được lùi về
+      // ngày gần nhất có doanh thu để biểu đồ không bị rỗng vô ích.
+      const now = new Date();
+      let endDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const lastWeekStart = new Date(endDay.getFullYear(), endDay.getMonth(), endDay.getDate() - 6);
+      const hasRecentPaid = await ordersColl.countDocuments({
+        paid: true,
+        createdAt: { $gte: lastWeekStart },
+      });
+      if (!hasRecentPaid) {
+        const latest = await ordersColl
+          .find({ paid: true })
+          .sort({ createdAt: -1 })
+          .limit(1)
+          .toArray();
+        if (latest[0] && latest[0].createdAt) {
+          const d = latest[0].createdAt;
+          endDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        }
+      }
+      const since = new Date(endDay.getFullYear(), endDay.getMonth(), endDay.getDate() - 6);
+      const dayGroup = await ordersColl
+        .aggregate([
+          { $match: { paid: true, createdAt: { $gte: since } } },
+          {
+            $group: {
+              _id: {
+                $dateToString: {
+                  format: "%Y-%m-%d",
+                  date: "$createdAt",
+                  timezone: "Asia/Ho_Chi_Minh",
+                },
+              },
+              revenue: { $sum: "$total" },
+              orders: { $sum: 1 },
+            },
+          },
+        ])
+        .toArray();
+      const dayMap = new Map(dayGroup.map((d) => [d._id, d]));
+      // Ngày cuối của khung ("YYYY-MM-DD") để giao diện ghi rõ khoảng thời gian
+      const revenue7dTo = `${endDay.getFullYear()}-${String(endDay.getMonth() + 1).padStart(
+        2,
+        "0"
+      )}-${String(endDay.getDate()).padStart(2, "0")}`;
+      const revenue7d = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(endDay.getFullYear(), endDay.getMonth(), endDay.getDate() - i);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+          d.getDate()
+        ).padStart(2, "0")}`;
+        const hit = dayMap.get(key);
+        revenue7d.push({ date: key, revenue: hit?.revenue || 0, orders: hit?.orders || 0 });
+      }
+
+      // Top 5 sản phẩm bán chạy theo số lượng, chỉ tính đơn đã thanh toán
+      const topGroup = await ordersColl
+        .aggregate([
+          { $match: { paid: true } },
+          { $unwind: "$items" },
+          {
+            $group: {
+              // Gom theo tên: cùng một sản phẩm có thể xuất hiện với id cũ/mới,
+              // còn tên thì luôn là thứ quản trị viên nhìn thấy
+              _id: "$items.name",
+              qty: { $sum: "$items.qty" },
+              revenue: { $sum: { $multiply: ["$items.price", "$items.qty"] } },
+            },
+          },
+          { $sort: { qty: -1, revenue: -1 } },
+          { $limit: 5 },
+        ])
+        .toArray();
+      const topProducts = topGroup.map((g) => ({
+        name: g._id || "(đã xoá)",
+        qty: g.qty,
+        revenue: g.revenue,
+      }));
+
+      // Doanh thu theo danh mục (snapshot category lưu trong từng dòng đơn).
+      // Đơn cũ chưa có category được gom vào "Khác" thay vì bị bỏ sót.
+      const categoryGroup = await ordersColl
+        .aggregate([
+          { $match: { paid: true } },
+          { $unwind: "$items" },
+          {
+            $group: {
+              _id: { $ifNull: ["$items.category", "khac"] },
+              qty: { $sum: "$items.qty" },
+              revenue: { $sum: { $multiply: ["$items.price", "$items.qty"] } },
+            },
+          },
+          { $sort: { revenue: -1 } },
+        ])
+        .toArray();
+      const salesByCategory = categoryGroup.map((g) => ({
+        slug: g._id,
+        label: categoryLabel(g._id),
+        qty: g.qty,
+        revenue: g.revenue,
+      }));
+
+      // 6 đơn mới nhất để dashboard hiển thị ngay việc cần xử lý
+      const recentRaw = await ordersColl
+        .find({}, { projection: { items: { $slice: 3 }, userId: 1, total: 1, status: 1, paid: 1, createdAt: 1 } })
+        .sort({ createdAt: -1 })
+        .limit(6)
+        .toArray();
+      const recentUserIds = [...new Set(recentRaw.map((o) => String(o.userId)))]
+        .filter((id) => ObjectId.isValid(id))
+        .map((id) => new ObjectId(id));
+      const recentUsers = await db
+        .collection("users")
+        .find({ _id: { $in: recentUserIds } }, { projection: { name: 1 } })
+        .toArray();
+      const nameById = new Map(recentUsers.map((u) => [String(u._id), u.name]));
+      const recentOrders = recentRaw.map((o) => ({
+        _id: String(o._id),
+        code: String(o._id).slice(-6).toUpperCase(),
+        userName: nameById.get(String(o.userId)) || "(đã xoá)",
+        total: o.total,
+        status: o.status,
+        paid: !!o.paid,
+        createdAt: o.createdAt,
+        itemNames: (o.items || []).map((i) => i.name),
+      }));
+
       sendJson(res, 200, {
-        stats: { totalProducts, totalUsers, totalOrders, paidOrders, revenue },
+        stats: {
+          totalProducts,
+          totalUsers,
+          totalOrders,
+          paidOrders,
+          revenue,
+          unpaidOrders,
+          unpaidValue,
+          statusCounts,
+          revenue7d,
+          revenue7dTo,
+          topProducts,
+          salesByCategory,
+          recentOrders,
+        },
       });
     },
     { admin: true }
